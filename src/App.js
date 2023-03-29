@@ -1,25 +1,31 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState,useEffect  } from "react"
+import TodoList from "./TodoList"
+import AddTodoForm from "./AddTodoForm"
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+// a function to create a custom hook (combinantion of useStae and useEffect)
+// returns todolist and setTodoList
+function useSemiPersistentState() {
+  const initialTodolist = !JSON.parse(localStorage.getItem("savedTodoList")) ? [] : JSON.parse(localStorage.getItem("savedTodoList"))
+  const [todoList, setTodoList] = useState(initialTodolist)
+  useEffect(() => {
+    localStorage.setItem("savedTodoList", JSON.stringify(todoList))
+  }, [todoList])
+
+  return [todoList, setTodoList]
 }
 
-export default App;
+function App() {
+  const [todoList, setTodoList] = useSemiPersistentState()
+  function addTodo(newTodo) {
+    setTodoList([...todoList, newTodo])
+  }
+  return (
+    <>
+      <h1>Todo List</h1>
+      <AddTodoForm onAddTodo={addTodo} />
+      <TodoList todoList={todoList} />
+    </>
+  )
+}
+
+export default App
